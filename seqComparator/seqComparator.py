@@ -923,30 +923,6 @@ def filter(cmdValues):
             sys.exit()
 
 
-def makeMapPED(i,j,k,l):
-    if i == 0:
-        pass
-    else:
-        tmpStr = ""
-
-        for m,n in enumerate(k):
-            if m == 0:
-                tmpStr = f"{str(j)}\t{str(j)}\t0\t0\t1\t{str(l)}"
-
-            else:
-                tmpN = 0
-                if(int(n) == 0):
-                    tmpN = 2
-                else:
-                    tmpN = 1
-
-                tmpStr = f"{tmpStr}\t{str(tmpN)} {str(tmpN)}"
-
-        print('.', end='', flush=True)
-
-        return(tmpStr)
-
-
 def queryKmers(seqNum,seqFile,kmerFile,cmdValues):
     seqFileName = Path(os.path.basename(seqFile)).stem
     tmpOutFileA = f"bifrost.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
@@ -1274,7 +1250,7 @@ def citation():
 
 
 def printVersion():
-    print(f"tabkit {__version__}")
+    print(f"seqComparator {__version__}")
 
 
 def tabtkMain():

@@ -219,13 +219,13 @@ def queryReferenceByBLAST(cmdValues):
     tmpOut2 = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
 
     blastCmd1 = f"echo \'qseqid sseqid length pident qcovs\' | tr \' \' \'\\t\' > {tmpOut2}"
-    blastCmd2 = f"blastn -db {tmpOutQuery} -query {tmpOut} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 qseqid sseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
+    blastCmd2 = f"blastn -db {tmpOutQuery} -query {tmpOut} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 qseqid sseqid length pident qcovs bitscore\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
 
     subprocess.call(blastCmd1,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
     subprocess.call(blastCmd2,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
 
     if cmdValues["complete"]:
-        blastCmd3 = f"blastn -db {tmpOut} -query {tmpOutQuery} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 sseqid qseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
+        blastCmd3 = f"blastn -db {tmpOut} -query {tmpOutQuery} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 sseqid qseqid length pident qcovs bitscore\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
         subprocess.call(blastCmd3,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
     else:
         pass
@@ -233,11 +233,11 @@ def queryReferenceByBLAST(cmdValues):
     blastData = pd.read_csv(tmpOut2,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int})
     blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
 
-    blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
+    blastData = blastData[["qseqid","sseqid","tmp","bitscore","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean','bitscore':'sum'}).reset_index()
 
     blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
 
-    blastDataR = blastData[["qseqid","sseqid","tmp1","length"]].sort_values(by=['sseqid','length','tmp1'],ascending=False).groupby(['sseqid']).first().reset_index()
+    blastDataR = blastData[["qseqid","sseqid","tmp1","bitscore"]].sort_values(by=['sseqid','bitscore','tmp1'],ascending=False).groupby(['sseqid']).first().reset_index()
 
     blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
 

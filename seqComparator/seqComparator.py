@@ -1253,7 +1253,7 @@ def printVersion():
     print(f"seqComparator {__version__}")
 
 
-def tabtkMain():
+def seqComparatorMain():
 
     optionsCmd = argparse.ArgumentParser(sys.argv[0],
                  usage=argparse.SUPPRESS,

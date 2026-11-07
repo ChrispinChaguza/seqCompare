@@ -218,7 +218,7 @@ def queryReferenceByBLAST(cmdValues):
     tmpOut1 = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
     tmpOut2 = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
 
-    blastCmd1 = f"echo \'qseqid sseqid length pident qcovs\' | tr \' \' \'\\t\' > {tmpOut2}"
+    blastCmd1 = f"echo \'qseqid sseqid length pident qcovs bitscore\' | tr \' \' \'\\t\' > {tmpOut2}"
     blastCmd2 = f"blastn -db {tmpOutQuery} -query {tmpOut} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 qseqid sseqid length pident qcovs bitscore\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
 
     subprocess.call(blastCmd1,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)

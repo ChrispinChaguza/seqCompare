@@ -221,14 +221,14 @@ def queryReferenceByBLAST(cmdValues):
     blastCmd1 = f"echo \'qseqid sseqid length pident qcovs\' | tr \' \' \'\\t\' > {tmpOut2}"
     blastCmd2 = f"blastn -db {tmpOutQuery} -query {tmpOut} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 qseqid sseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
 
-    if cmdValues["complete"]:
-        blastCmd3 = f"blastn -db {tmpOut} -query {tmpOutQuery} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 sseqid qseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
-    else:
-        pass
-
     subprocess.call(blastCmd1,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
     subprocess.call(blastCmd2,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
-    subprocess.call(blastCmd3,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+
+    if cmdValues["complete"]:
+        blastCmd3 = f"blastn -db {tmpOut} -query {tmpOutQuery} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 sseqid qseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
+        subprocess.call(blastCmd3,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+    else:
+        pass
 
     blastData = pd.read_csv(tmpOut2,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int})
     blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)

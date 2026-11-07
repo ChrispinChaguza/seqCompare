@@ -13,3 +13,5 @@ dependencies:
   - networkx
   - mash
   - fastani
+  - pip:
+    - seqCompare

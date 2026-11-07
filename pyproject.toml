@@ -2,7 +2,7 @@
 requires = ["setuptools"]
 
 [project]
-name = "seqComparator"
+name = "seqCompare"
 dynamic = ["version"]
 authors = [
   { name="Chrispin Chaguza", email="chrispin.chaguza@gmail.com" },
@@ -12,7 +12,7 @@ maintainers = [
   {name = "Chrispin Chaguza", email = "chrispin.chaguza@gmail.com"},
 ]
 
-description = "seqComparator: A toolkit for sequence similarity analysis"
+description = "seqCompare: A toolkit for sequence similarity analysis"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
 requires-python = ">=3.8"
@@ -31,21 +31,21 @@ dependencies = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "seqComparator.__version__"}
+version = {attr = "seqCompare.__version__"}
 
 [tool.setuptools.packages]
 find = {} 
 
 [tool.setuptools]
-py-modules = ["tabtk.tabtk"]
+py-modules = ["seqCompare.seqCompare"]
 
 [project.scripts]
-tabtk = "tabtk.__main__:main"
+seqCompare = "seqCompare.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/ChrispinChaguza/seqComparator"
-Repository = "https://github.com/ChrispinChaguza/seqComparator.git"
-Issues = "https://github.com/ChrispinChaguza/seqComparator/issues"
-Documentation = "https://github.com/ChrispinChaguza/seqComparator"
-Website = "https://github.com/ChrispinChaguza/seqComparator"
+Homepage = "https://github.com/ChrispinChaguza/seqCompare"
+Repository = "https://github.com/ChrispinChaguza/seqCompare.git"
+Issues = "https://github.com/ChrispinChaguza/seqCompare/issues"
+Documentation = "https://github.com/ChrispinChaguza/seqCompare"
+Website = "https://github.com/ChrispinChaguza/seqCompare"
 

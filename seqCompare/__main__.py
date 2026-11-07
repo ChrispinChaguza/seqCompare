@@ -16,11 +16,11 @@ import pandas as pd
 import networkx as nx
 import math
 import datetime
-from .seqComparator import seqComparatorMain
+from .seqCompare import seqCompareMain
 
 def main():
     try:
-        seqComparatorMain()            
+        seqCompareMain()            
     except KeyboardInterrupt:
         print("Execulted halted")
 

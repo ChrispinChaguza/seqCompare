@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+seqCompare/__init__.py
+seqCompare/__main__.py
+seqCompare/seqCompare.py
+seqCompare.egg-info/PKG-INFO
+seqCompare.egg-info/SOURCES.txt
+seqCompare.egg-info/dependency_links.txt
+seqCompare.egg-info/entry_points.txt
+seqCompare.egg-info/requires.txt
+seqCompare.egg-info/top_level.txt

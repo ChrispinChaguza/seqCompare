@@ -1,19 +1,19 @@
-# seqComparator
+# seqCompare
 A toolkit for sequence similarity analysis
 
 # Installation
 
 ```
-conda env create --name seqComparator --file environment.yaml --yes
-pip install seqComparator
+conda env create --name seqCompare --file environment.yaml --yes
+pip install seqCompare
 ```
 
 Upcoming...
 ```
-conda install -c bioconda seqComparator --yes
+conda install -c bioconda seqCompare --yes
 ```
 
 # Citation
 ```
-Chaguza et al. seqComparator: A toolkit for sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqComparator](https://github.com/ChrispinChaguza/seqComparator)
+Chaguza et al. seqCompare: A toolkit for sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqCompare](https://github.com/ChrispinChaguza/seqCompare)
 ```

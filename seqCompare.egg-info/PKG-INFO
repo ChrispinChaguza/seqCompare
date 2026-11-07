@@ -1,0 +1,44 @@
+Metadata-Version: 2.4
+Name: seqCompare
+Version: 1.0.0
+Summary: seqCompare: A toolkit for sequence similarity analysis
+Author-email: Chrispin Chaguza <chrispin.chaguza@gmail.com>
+Maintainer-email: Chrispin Chaguza <chrispin.chaguza@gmail.com>
+License-Expression: MIT
+Project-URL: Homepage, https://github.com/ChrispinChaguza/seqCompare
+Project-URL: Repository, https://github.com/ChrispinChaguza/seqCompare.git
+Project-URL: Issues, https://github.com/ChrispinChaguza/seqCompare/issues
+Project-URL: Documentation, https://github.com/ChrispinChaguza/seqCompare
+Project-URL: Website, https://github.com/ChrispinChaguza/seqCompare
+Keywords: Sequence similarity,K-mer,Cluster,Genome
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Classifier: Intended Audience :: Science/Research
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: build
+Dynamic: license-file
+
+# seqCompare
+A toolkit for sequence similarity analysis
+
+# Installation
+
+```
+conda env create --name seqCompare --file environment.yaml --yes
+pip install seqCompare
+```
+
+Upcoming...
+```
+conda install -c bioconda seqCompare --yes
+```
+
+# Citation
+```
+Chaguza et al. seqCompare: A toolkit for sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqCompare](https://github.com/ChrispinChaguza/seqCompare)
+```

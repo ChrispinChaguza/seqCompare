@@ -1246,18 +1246,18 @@ def loadDataTable(cmdValues):
 
 
 def citation():
-    print(f"Chrispin Chaguza. 2026. seqComparator: A toolkit for sequence similarity analysis. https://github.com/ChrispinChaguza/seqComparator")
+    print(f"Chrispin Chaguza. 2026. seqCompare: A toolkit for sequence similarity analysis. https://github.com/ChrispinChaguza/seqCompare")
 
 
 def printVersion():
-    print(f"seqComparator {__version__}")
+    print(f"seqCompare {__version__}")
 
 
-def seqComparatorMain():
+def seqCompareMain():
 
     optionsCmd = argparse.ArgumentParser(sys.argv[0],
                  usage=argparse.SUPPRESS,
-                 description='seqComparator: A toolkit for sequence similarity analysis',
+                 description='seqCompare: A toolkit for sequence similarity analysis',
                  prefix_chars='-',
                  add_help=True,
                  epilog='Written by Chrispin Chaguza, St Jude Children\'s Research Hospital, 2026')
@@ -1268,214 +1268,217 @@ def seqComparatorMain():
 
     similarityOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file (input should be file of fasta files when used with --mash/-m and --fastani/-n options or alignment file when used with --aln/-a option)')
+                        help='input tabular text file (input should be file of fasta files when used with --mash/-m and --fastani/-n options or alignment file when used with --aln/-a option)')
     similarityOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     similarityOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.similarity.tsv",
-                        help='Output percent similarity')
+                        help='output percent similarity')
     similarityOptions.add_argument('--length','-l',action='store',required=False,nargs=1,
                         metavar='length',dest='length',default=31,type=int,
-                        help='K-mer length for --mash/-m or --fastani/-n (default: 31)')
+                        help='k-mer length for --mash/-m or --fastani/-n (default: 31)')
     similarityOptions.add_argument('--size','-s',action='store',required=False,nargs=1,
                         metavar='size',dest='size',default=1000000,type=int,
-                        help='Sketch size for MASH; use with --mash (default: 1000000)')
+                        help='sketch size for MASH; use with --mash (default: 1000000)')
     similarityOptions.add_argument('--mash','-m',action='store_true',default=False,
-                        dest='mash',help='Calculate similarity using MASH')
+                        dest='mash',help='calculate similarity using MASH')
     similarityOptions.add_argument('--fastani','-n',action='store_true',default=False,
-                        dest='fastani',help='Calculate similarity using fastANI')
+                        dest='fastani',help='calculate similarity using fastANI')
     similarityOptions.add_argument('--blast','-b',action='store_true',default=False,
-                        dest='blast',help='Calculate similarity using BLAST')
+                        dest='blast',help='calculate similarity using BLAST')
     similarityOptions.add_argument('--blastani','-x',action='store_true',default=False,
-                        dest='blastani',help='Calculate blast ANI similarity')
+                        dest='blastani',help='calculate blast ANI similarity')
     similarityOptions.add_argument('--aln','-a',action='store_true',default=False,
-                        dest='aln',help='Calculate similarity based on a given sequence alignment') 
+                        dest='aln',help='calculate similarity based on a given sequence alignment') 
     similarityOptions.add_argument('--fraction','-c',action='store',required=False,nargs=1,
                         metavar='fraction',dest='fraction',default=0.70,type=float,
-                        help='Minimum overlap fraction with shorter sequence for ANI calculation; use with --fastani or --blastani (default: 0.70)')
+                        help='minimum overlap fraction with shorter sequence for ANI calculation; use with --fastani or --blastani (default: 0.70)')
     similarityOptions.add_argument('--fragment','-r',action='store',required=False,nargs=1,
                         metavar='fragment',dest='fragment',default=500,type=int,
-                        help='Fragment length for calculating ANI; use with --fastani (default: 500)')
+                        help='fragment length for calculating ANI; use with --fastani (default: 500)')
     similarityOptions.add_argument('--evalue','-e',action='store',required=False,nargs=1,
                         metavar='evalue',dest='evalue',default=0.001,type=float,
-                        help='Minimum evalue for hits; use with --blast (default: 0.001)')
+                        help='minimum evalue for hits; use with --blast (default: 0.001)')
     similarityOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
                         metavar='threads',dest='threads',default=5,type=int,
-                        help='Number of threads (default: 5)')
+                        help='number of threads (default: 5)')
 
 
     orderOptions = optionsCommand.add_parser("order")
 
     orderOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     orderOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     orderOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.ordered.tsv",
-                        help='Output ordered data file')
+                        help='output ordered data file')
     orderOptions.add_argument('--alphabetic','-a',action='store_true',required=False,
                         dest='alphabetic',default=False,
-                        help='Show similarity values as percentage instead of fraction')
+                        help='show similarity values as percentage instead of fraction')
     orderOptions.add_argument('--rownames','-r',action='store',required=False,nargs=1,
                         metavar='rownames',dest='rownames',
-                        help='Order by item names in a given text file (one name per row)')
+                        help='order by item names in a given text file (one name per row)')
     orderOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
                         metavar='threads',dest='threads',default=5,type=int,
-                        help='Number of threads (default: 5)')
+                        help='number of threads (default: 5)')
 
     renameOptions = optionsCommand.add_parser("rename")
 
     renameOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     renameOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     renameOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.renamed.tsv",
-                        help='Output ordered data file')
+                        help='output ordered data file')
     renameOptions.add_argument('--columns','-c',action='store',required=True,nargs="*",
                         metavar='columns',dest='columns',
-                        help='Selected column numbers (e.g., --columns 1 2 3 4)')
+                        help='selected column numbers (e.g., --columns 1 2 3 4)')
     renameOptions.add_argument('--newdata','-n',action='store',required=True,nargs=1,
                         metavar='newdata',dest='newdata',
-                        help='Order by item names in a given text file (one name per row)')
+                        help='order by item names in a given text file (one name per row)')
 
 
     filterOptions = optionsCommand.add_parser("filter")
 
     filterOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     filterOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     filterOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.filter.tsv",
-                        help='Output percent similarity')
+                        help='output percent similarity')
     filterOptions.add_argument('--min','-a',action='store',required=False,nargs=1,
                         metavar='minCutoff',dest='minCutoff',default=0,type=int,
-                        help='Select with frequency ≥minCutoff percent (overrides --columns/-c and --rows/-r)')
+                        help='select with frequency ≥minCutoff percent (overrides --columns/-c and --rows/-r)')
     filterOptions.add_argument('--max','-b',action='store',required=False,nargs=1,
                         metavar='maxCutoff',dest='maxCutoff',default=100,type=int,
-                        help='Select with frequency ≤maxCutoff percent (overrides --columns/-c and --rows/-r)')
+                        help='select with frequency ≤maxCutoff percent (overrides --columns/-c and --rows/-r)')
     filterOptions.add_argument('--columns','-c',action='store',required=False,nargs=1,
                         metavar='columns',dest='columns',
-                        help='Select only columns present in a given text file (one column value per row)')
+                        help='select only columns present in a given text file (one column value per row)')
     filterOptions.add_argument('--rows','-r',action='store',required=False,nargs=1,
                         metavar='rows',dest='rows',
-                        help='Select only rows present in a given text file (one column value per row)')
+                        help='select only rows present in a given text file (one column value per row)')
     filterOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
                         metavar='threads',dest='threads',default=5,type=int,
-                        help='Number of threads (default: 5)')
+                        help='number of threads (default: 5)')
 
 
     sampleOptions = optionsCommand.add_parser("sample")
 
     sampleOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     sampleOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     sampleOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.sample.tsv",
-                        help='Output file')
+                        help='output file')
     sampleOptions.add_argument('--cf','-c',action='store',required=False,nargs=1,
                         metavar='colfreq',dest='colfreq',default=0,type=float,
-                        help='Randomly select ≥colfreq percent of the columns')
+                        help='randomly select ≥colfreq percent of the columns')
     sampleOptions.add_argument('--rf','-r',action='store',required=False,nargs=1,
                         metavar='rowfreq',dest='rowfreq',default=0,type=float,
-                        help='Randomly select ≥rowfreq percent of the rows')
+                        help='randomly select ≥rowfreq percent of the rows')
 
 
     transposeOptions = optionsCommand.add_parser("transpose")
 
     transposeOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     transposeOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     transposeOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.filter.tsv",
-                        help='Output percent similarity')
+                        help='output percent similarity')
 
 
     clusterOptions = optionsCommand.add_parser("cluster")
 
     clusterOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input tabular text file')
+                        help='input tabular text file')
     clusterOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
+                        help='data format (default: tsv)')
     clusterOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="out.clusters.tsv",
-                        help='Output clusters')
+                        help='output clusters')
     clusterOptions.add_argument('--prefix','-p',action='store',required=False,nargs=1,
                         metavar='prefix',dest='prefix',default="CLS",
-                        help='Cluster label prefix')
+                        help='cluster label prefix')
     clusterOptions.add_argument('--sep','-s',action='store',required=False,nargs=1,
                         metavar='separator',dest='separator',default="-",
-                        help='Lineage label separator')
+                        help='lineage label separator')
     clusterOptions.add_argument('--thresholds','-t',action='store',required=True,nargs="*",
                         metavar='thresholds',dest='thresholds',
-                        help='Cluster or lineage thresholds')
+                        help='cluster or lineage thresholds')
 
 
     kmerMatrixOptions = optionsCommand.add_parser("table")
 
     kmerMatrixOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='Input text files containing fasta sequence file names')
+                        help='input text files containing fasta sequence file names')
     kmerMatrixOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
                         metavar='output',dest='output',default="db.kmers.fasta",
-                        help='Output percent similarity')
+                        help='output percent similarity')
     kmerMatrixOptions.add_argument('--length','-l',action='store',required=False,nargs=1,
                         metavar='length',dest='length',default=31,type=int,
-                        help='K-mer length (default: 31)')
+                        help='k-mer length (default: 31)')
     kmerMatrixOptions.add_argument('--min','-m',action='store',required=False,nargs=1,
                         metavar='minabundance',dest='minabundance',default=1,type=int,
-                        help='Minimum k-mer abundance (default: 1)')
+                        help='minimum k-mer abundance (default: 1)')
     kmerMatrixOptions.add_argument('--maxmem','-x',action='store',required=False,nargs=1,
                         metavar='maxmemory',dest='maxmemory',default=31,type=int,
-                        help='Maximum memory (default: 5000)')
+                        help='maximum memory (default: 5000)')
     kmerMatrixOptions.add_argument('--dsk','-s',action='store_true',default=True,
                         dest='dsk',help='DSK to identify k-mers')
     kmerMatrixOptions.add_argument('--bifrost','-b',action='store_true',default=False,
-                        dest='bifrost',help='Bifrost to identify variable length k-mers or unitigs')
+                        dest='bifrost',
+                        help='bifrost to identify variable length k-mers or unitigs')
     kmerMatrixOptions.add_argument('--kmers','-k',action='store',required=False,nargs=1,
                         metavar='kmers',dest='kmers',default="",
-                        help='Only query input sequence against a given k-mer database')
+                        help='only query input sequence against a given k-mer database')
     kmerMatrixOptions.add_argument('--approx','-a',action='store_true',required=False,
                         dest='approximate',default=False,
-                        help='Search inexact k-mers (default: False)')
+                        help='search inexact k-mers (default: False)')
     kmerMatrixOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
                         metavar='threads',dest='threads',default=5,type=int,
-                        help='Number of threads (default: 5)')
+                        help='number of threads (default: 5)')
 
 
     versionOptions = optionsCommand.add_parser("version")
 
     versionOptions.add_argument('--version','-v',action='store_false',default=True,
-                        dest='version',help='Show software version')
+                        dest='version',
+                        help='show software version')
 
 
     citationOptions = optionsCommand.add_parser("citation")
 
     citationOptions.add_argument('--citation','-c',action='store_false',default=True,
-                        dest='citation',help='Show software citation information')
+                        dest='citation',
+                        help='show software citation information')
 
 
     options = optionsCmd.parse_args(args=None if sys.argv[1:] else ['--help'])
@@ -1590,4 +1593,4 @@ def seqComparatorMain():
 
 
 if __name__=="__main__":
-    seqComparatorMain()
+    seqCompareMain()

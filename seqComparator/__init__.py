@@ -1,4 +1,4 @@
-"""tabkit: A toolkit for sequence similarity analysis based on tabular data"""
+"""seqComparator: A toolkit for sequence similarity analysis"""
 
-__version__ = "1.0.9"
+__version__ = "1.0.0"
 

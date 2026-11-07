@@ -947,164 +947,6 @@ def makeMapPED(i,j,k,l):
         return(tmpStr)
 
 
-def gwas(cmdValues):
-    checkFlags = [1 for flag in [cmdValues["pyseer"],cmdValues["plink"],cmdValues["gemma"],cmdValues["fastlmm"]] if flag == True]
-
-    if sum(checkFlags) > 1:
-        print(f"Only one these flags should be specified: --pyseer/-s, --plink/-l, --gemma/g, and --fastlmm/-m... exiting...")
-        sys.exit()
-    else:
-        if sum(checkFlags) == 0:
-            cmdValues["plink"] = True
-
-        else:
-            pass
-
-    dataMatrixDF = loadDataTable(cmdValues)
-
-    phenoData={}
-
-    if os.path.exists(cmdValues["phenotype"]):
-        phenoDataTmp = [str(item).strip() for item in open(cmdValues["phenotype"],"r")]
-
-        phenoData = {}
-
-        bar = ChargingBar('Processing phenotype data', max=len(phenoDataTmp))
-        for m in phenoDataTmp:
-            tmpR = re.split("\t|,|;",str(m).strip()) 
-            phenoData[tmpR[0]]=tmpR[1]
-
-            bar.next()
-        bar.finish()
-
-    else:
-        print(f"Phenotype file {cmdValues["phenotype"]} not found... exiting...")
-        sys.exit()
-
-    if cmdValues["plink"]:
-        with open(f"{Path(cmdValues["output"]).stem}.plink.map","w") as mapFile:
-            with open(f"{Path(cmdValues["output"]).stem}.plink.ped","w") as pedFile:
-
-                tmpItems = [(i,j) for i,j in enumerate(dataMatrixDF.keys()) if i>0]
-
-                with multiprocessing.Pool(processes=cmdValues["threads"]) as pool:
-                    args = [(i,j,dataMatrixDF[j],phenoData[j]) for i,j in tmpItems]
-                    resultsMapPED = pool.starmap(makeMapPED, args)
-
-                bar = ChargingBar("Saving PLINK PED file", max=len(list(dataMatrixDF.keys())))
-                for eachResult in resultsMapPED:
-                    pedFile.write(f"{eachResult}\n")
-
-                    bar.next()
-                bar.finish()
-
-                bar = ChargingBar("Saving PLINK MAP file", max=len(dataMatrixDF[list(dataMatrixDF.keys())[0]]))
-                for k,l in enumerate(dataMatrixDF[list(dataMatrixDF.keys())[0]]):
-                    if k != 0:
-                        mapFile.write(f"26\t{str(l)}\t0\t{str(k)}\n")
-
-                    else:
-                        pass
-
-                    bar.next()
-                bar.finish()
-
-    elif cmdValues["fastlmm"]:
-        with open(f"{Path(cmdValues["output"]).stem}.fastlmm.map","w") as mapFile:
-            with open(f"{Path(cmdValues["output"]).stem}.fastlmm.ped","w") as pedFile:
-
-                tmpItems = [(i,j) for i,j in enumerate(dataMatrixDF.keys()) if i>0]
-
-                with multiprocessing.Pool(processes=cmdValues["threads"]) as pool:
-                    args = [(i,j,dataMatrixDF[j],phenoData[j]) for i,j in tmpItems]
-                    resultsMapPED = pool.starmap(makeMapPED, args)
-
-                bar = ChargingBar("Saving FASTLMM PED file", max=len(list(dataMatrixDF.keys())))
-                for eachResult in resultsMapPED:
-                    pedFile.write(f"{eachResult}\n")
-
-                    bar.next()
-                bar.finish()
-
-
-                bar = ChargingBar("Saving FASTLMM MAP file", max=len(dataMatrixDF[list(dataMatrixDF.keys())[0]]))
-                for k,l in enumerate(dataMatrixDF[list(dataMatrixDF.keys())[0]]):
-                    if k != 0:
-                        mapFile.write(f"26\t{str(l)}\t0\t{str(k)}\n")
-
-                    else:
-                        pass
-
-                    bar.next()
-                bar.finish()
-
-    elif cmdValues["gemma"]:
-        with open(f"{Path(cmdValues["output"]).stem}.plink.map","w") as mapFile:
-            with open(f"{Path(cmdValues["output"]).stem}.plink.ped","w") as pedFile:
-
-                tmpItems = [(i,j) for i,j in enumerate(dataMatrixDF.keys()) if i>0]
-
-                with multiprocessing.Pool(processes=cmdValues["threads"]) as pool:
-                    args = [(i,j,dataMatrixDF[j],phenoData[j]) for i,j in tmpItems]
-                    resultsMapPED = pool.starmap(makeMapPED, args)
-
-                bar = ChargingBar("Saving PLINK PED file", max=len(list(dataMatrixDF.keys())))
-                for eachResult in resultsMapPED:
-                    pedFile.write(f"{eachResult}\n")
-
-                    bar.next()
-                bar.finish()
-
-                bar = ChargingBar("Saving PLINK MAP file", max=len(dataMatrixDF[list(dataMatrixDF.keys())[0]]))
-                for k,l in enumerate(dataMatrixDF[list(dataMatrixDF.keys())[0]]):
-                    if k != 0:
-                        mapFile.write(f"26\t{str(l)}\t0\t{str(k)}\n")
-
-                    else:
-                        pass
-
-                    bar.next()
-                bar.finish()
-
-        if not shutil.which("plink"):
-            print("Install 'plink' software dependency and try again... exiting...")
-            sys.exit()
-        else:
-            pass
-
-        bar = ChargingBar("Generating GEMMA binary PED files", max=1)
-        plinkCmd = f"plink -file {f"{Path(cmdValues["output"]).stem}.plink"} -make-bed -out {f"{Path(cmdValues["output"]).stem}.gemma"} --threads {cmdValues["threads"]}"
-
-        subprocess.call(plinkCmd,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
-        bar.next()
-        bar.finish()
-
-        os.remove(f"{Path(cmdValues["output"]).stem}.plink.map")
-        os.remove(f"{Path(cmdValues["output"]).stem}.plink.ped")
-        os.remove(f"{Path(cmdValues["output"]).stem}.gemma.log")
-
-    else:
-        with open(f"{Path(cmdValues["output"]).stem}.pyseer.tsv","w") as pyseerTab:
-            with open(f"{Path(cmdValues["output"]).stem}.pyseer.pheno.tsv","w") as pyseerPheno:
-
-                transpose(cmdValues)
-
-                transposedFileName = f"{Path(cmdValues["output"]).stem}.transposed.tsv"
-                pyseerFileName = f"{Path(cmdValues["output"]).stem}.pyseer.tsv"
-
-                shutil.move(transposedFileName,pyseerFileName)
-
-                bar = ChargingBar("Generating PYSEER files", max=len(phenoData.keys()))
-                for itemPos,item in enumerate(phenoData.keys()):
-                    if itemPos == 0:
-                        pyseerPheno.write("samples\tphenotype\n")
-                    else:
-                        pyseerPheno.write(f"{item}\t{phenoData[item]}\n")
-
-                    bar.next()
-                bar.finish()
-
-
 def queryKmers(seqNum,seqFile,kmerFile,cmdValues):
     seqFileName = Path(os.path.basename(seqFile)).stem
     tmpOutFileA = f"bifrost.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
@@ -1428,8 +1270,7 @@ def loadDataTable(cmdValues):
 
 
 def citation():
-    print(f"Chrispin Chaguza. 2026. matrixToSimilarity: calculating percent similarity between pairs of items (rows) \
-given tabular text file. https://github.com/ChrispinChaguza/matrixToSimilarity")
+    print(f"Chrispin Chaguza. 2026. seqComparator: A toolkit for sequence similarity analysis. https://github.com/ChrispinChaguza/seqComparator")
 
 
 def printVersion():
@@ -1440,7 +1281,7 @@ def tabtkMain():
 
     optionsCmd = argparse.ArgumentParser(sys.argv[0],
                  usage=argparse.SUPPRESS,
-                 description='tabtk: A toolkit for sequence similarity analysis based on tabular data',
+                 description='seqComparator: A toolkit for sequence similarity analysis',
                  prefix_chars='-',
                  add_help=True,
                  epilog='Written by Chrispin Chaguza, St Jude Children\'s Research Hospital, 2026')
@@ -1617,38 +1458,6 @@ def tabtkMain():
                         help='Cluster or lineage thresholds')
 
 
-    gwasOptions = optionsCommand.add_parser("gwas")
-
-    gwasOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
-                        metavar='data',dest='data',
-                        help='Input tabular text file')
-    gwasOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
-                        metavar='format',dest='format',default="tsv",
-                        choices=['tsv','csv'],
-                        help='Data format (default: tsv)')
-    gwasOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
-                        metavar='output',dest='output',default="out.gwas.tsv",
-                        help='Output percent similarity')
-    gwasOptions.add_argument('--phenotype','-p',action='store',required=False,nargs=1,
-                        metavar='phenotype',dest='phenotype',
-                        help='Input phenotype text file (row name,phenotype); no header')
-    gwasOptions.add_argument('--pyseer','-s',action='store_true',required=False,
-                        dest='pyseer',default=False,
-                        help='Output presence and absence data for Pyseer')
-    gwasOptions.add_argument('--plink','-l',action='store_true',required=False,
-                        dest='plink',default=False,
-                        help='Output presence and absence data for Pyseer')
-    gwasOptions.add_argument('--fastlmm','-m',action='store_true',required=False,
-                        dest='fastlmm',default=False,
-                        help='Output presence and absence data for Pyseer')
-    gwasOptions.add_argument('--gemma','-g',action='store_true',required=False,
-                        dest='gemma',default=False,
-                        help='Output presence and absence data for GEMMA')
-    gwasOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
-                        metavar='threads',dest='threads',default=5,type=int,
-                        help='Number of threads (default: 5)')
-
-
     kmerMatrixOptions = optionsCommand.add_parser("table")
 
     kmerMatrixOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
@@ -1778,20 +1587,6 @@ def tabtkMain():
                  }
 
         transpose(cmdValues)
-
-    elif options.command == "gwas":
-        cmdValues = {'data': options.data[0:][0],
-                 'format': options.format[0:][0] if isinstance(options.format,list) else options.format,
-                 'output': options.output[0:][0] if isinstance(options.output,list) else options.output,
-                 'phenotype': options.phenotype[0:][0] if isinstance(options.phenotype,list) else options.phenotype,
-                 'pyseer': options.pyseer,
-                 'fastlmm': options.fastlmm,
-                 'plink': options.plink,
-                 'gemma': options.gemma,
-                 'threads': int(options.threads[0:][0]) if isinstance(options.threads,list) else int(options.threads)
-                 }
-
-        gwas(cmdValues)
 
     elif options.command == "table":
         cmdValues = {'data': options.data[0:][0],

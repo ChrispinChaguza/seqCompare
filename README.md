@@ -1,19 +1,19 @@
-# tabtk
-A toolkit for sequence similarity analysis based on tabular data
+# seqComparator
+A toolkit for sequence similarity analysis
 
 # Installation
 
 ```
-conda env create --name tabtk --file environment.yaml --yes
-pip install tabtk
+conda env create --name seqComparator --file environment.yaml --yes
+pip install seqComparator
 ```
 
 Upcoming...
 ```
-conda install -c bioconda tabtk --yes
+conda install -c bioconda seqComparator --yes
 ```
 
 # Citation
 ```
-Chaguza et al. tabkit: A toolkit for sequence similarity analysis based on tabular data. 2026. [https://github.com/ChrispinChaguza/tabtk](https://github.com/ChrispinChaguza/tabtk)
+Chaguza et al. seqComparator: A toolkit for sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqComparator](https://github.com/ChrispinChaguza/seqComparator)
 ```

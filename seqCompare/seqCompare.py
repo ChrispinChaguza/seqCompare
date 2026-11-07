@@ -230,7 +230,7 @@ def queryReferenceByBLAST(cmdValues):
     else:
         pass
 
-    blastData = pd.read_csv(tmpOut2,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int})
+    blastData = pd.read_csv(tmpOut2,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int, 'bitscore': float})
     blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
 
     blastData = blastData[["qseqid","sseqid","tmp","bitscore","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean','bitscore':'sum'}).reset_index()

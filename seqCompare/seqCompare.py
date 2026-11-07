@@ -130,6 +130,168 @@ def mashSimilarity(cmdValues):
     return(mashResults)    
 
 
+def queryReferenceByBLAST(cmdValues):
+    if not shutil.which("blastn"):
+        print("Install BLAST and try again... exiting...")
+        sys.exit()
+
+    else:
+        pass
+
+    tmpFileNames = []
+    fileNames = []
+
+    tmpFileNamesQuery = []
+    fileNamesQuery = []
+
+    tmpCmd="wc -l "+str(cmdValues["reference"])+" | awk '{print $1}'"
+    dataFileLines=subprocess.Popen(tmpCmd,shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    dataLines = int(dataFileLines.communicate()[0])
+    dataFileLines.kill()
+
+    bar = ChargingBar("Loading reference sequences", max=int(dataLines))
+    for fileName in open(cmdValues["reference"],"r"):
+        fileNames.append(str(fileName).strip())
+
+        bar.next()
+    bar.finish()
+
+    tmpCmd="wc -l "+str(cmdValues["query"])+" | awk '{print $1}'"
+    dataFileLines=subprocess.Popen(tmpCmd,shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    dataLines = int(dataFileLines.communicate()[0])
+    dataFileLines.kill()
+
+    bar = ChargingBar("Loading query sequences", max=int(dataLines))
+    for fileName in open(cmdValues["query"],"r"):
+        fileNamesQuery.append(str(fileName).strip())
+
+        bar.next()
+    bar.finish()
+
+    tmpCmd="wc -l "+str(cmdValues["reference"])+" | awk '{print $1}'"
+    dataFileLines=subprocess.Popen(tmpCmd,shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    dataLines = int(dataFileLines.communicate()[0])
+    dataFileLines.kill()
+
+    bar = ChargingBar("Processing reference sequences", max=int(dataLines))
+    for i in fileNames:
+        tmpFileNames.append(f"{Path(i).stem}.tmpfna")
+
+        with open(f"{Path(i).stem}.tmpfna","w") as fh:
+            for j in SeqIO.parse(i,"fasta"):
+                fh.write(f">{Path(os.path.basename(i)).stem}\n{j.seq}\n")
+
+    bar = ChargingBar("Processing reference sequences", max=int(dataLines))
+    for i in fileNamesQuery:
+        tmpFileNamesQuery.append(f"{Path(i).stem}.tmpfna")
+
+        with open(f"{Path(i).stem}.tmpfna","w") as fh:
+            for j in SeqIO.parse(i,"fasta"):
+                fh.write(f">{Path(os.path.basename(i)).stem}\n{j.seq}\n") 
+
+    tmpOut = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
+
+    bar = ChargingBar("Creating reference sequences", max=len(tmpFileNames))
+    with open(tmpOut,"w") as tmpOutFile:
+        for fileName in tmpFileNames:
+            for seq in SeqIO.parse(fileName,"fasta"):
+                tmpOutFile.write(f">{seq.id}\n{seq.seq}\n")
+            bar.next()
+        bar.finish()
+
+    tmpOutQuery = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
+
+    bar = ChargingBar("Processing query sequences", max=len(tmpFileNamesQuery))
+    with open(tmpOutQuery,"w") as tmpOutFile:
+        for fileName in tmpFileNamesQuery:
+            for seq in SeqIO.parse(fileName,"fasta"):
+                tmpOutFile.write(f">{seq.id}\n{seq.seq}\n")
+            bar.next()
+        bar.finish()
+
+    Cmd2 = f"makeblastdb -in {tmpOutQuery} -dbtype nucl"
+
+    subprocess.call(Cmd2,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+    
+    print("Calculating percent similarity... may take longer... be patient...")
+
+    tmpOut1 = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
+    tmpOut2 = f"blast.{str(datetime.datetime.now()).replace(" ","").replace("-",".").replace(":",".")}"
+
+    blastCmd1 = f"echo \'qseqid sseqid length pident qcovs\' | tr \' \' \'\\t\' > {tmpOut2}"
+    blastCmd2 = f"blastn -db {tmpOutQuery} -query {tmpOut} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 qseqid sseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
+
+    if cmdValues["complete"]:
+        blastCmd3 = f"blastn -db {tmpOut} -query {tmpOutQuery} -word_size {cmdValues["length"]} -num_threads {cmdValues["threads"]} -outfmt \'6 sseqid qseqid length pident qcovs\' -evalue {cmdValues["evalue"]} >> {tmpOut2}"
+    else:
+        pass
+
+    subprocess.call(blastCmd1,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+    subprocess.call(blastCmd2,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+    subprocess.call(blastCmd3,shell=True,stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+
+    blastData = pd.read_csv(tmpOut2,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int})
+    blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
+
+    blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
+
+    blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
+
+    blastDataR = blastData[["qseqid","sseqid","tmp1","length"]].sort_values(by=['sseqid','length','tmp1'],ascending=False).groupby(['sseqid']).first().reset_index()
+
+    blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
+
+    filesToRemove = tmpFileNames
+    filesToRemove.extend(tmpFileNamesQuery)
+
+    bar = ChargingBar("Cleaning temporary files", max=len(filesToRemove))
+    for fileName in filesToRemove:
+        if os.path.exists(fileName):
+            os.remove(fileName)
+        else:
+            pass
+            
+        bar.next() 
+    bar.finish() 
+
+    if os.path.exists(tmpOut1):
+        os.remove(tmpOut1)
+    else:
+        pass
+
+    if os.path.exists(tmpOut2):
+        os.remove(tmpOut2)
+    else:
+        pass
+
+    if os.path.exists(tmpOut):
+        os.remove(tmpOutQuery)
+    else:
+        pass
+
+    for file in glob.glob(f"{tmpOutQuery}*"):
+        if os.path.exists(file):
+            os.remove(file)
+        else:
+            pass
+
+    for file in glob.glob(f"{tmpOut}*"):
+        if os.path.exists(file):
+            os.remove(file)
+        else:
+            pass
+
+    with open(cmdValues["output"],"w") as simData:
+        simData.write("seq1\tseq2\tpid\n")
+
+        bar = ChargingBar('Writing similarity values', max=len(blastDataFinal))
+        for itemPair in blastDataFinal:
+            simData.write(f"{"\t".join([str(r) for r in itemPair])}\n")
+
+            bar.next()
+        bar.finish()
+
+
 def blastANISimilarity(cmdValues):
     if not shutil.which("blastn"):
         print("Install BLAST and try again... exiting...")
@@ -1305,6 +1467,32 @@ def seqCompareMain():
                         metavar='threads',dest='threads',default=5,type=int,
                         help='number of threads (default: 5)')
 
+    queryOptions = optionsCommand.add_parser("query")
+
+    queryOptions.add_argument('--reference','-r',action='store',required=True,nargs=1,
+                        metavar='reference',dest='reference',
+                        help='input tabular text file containing reference sequences')
+    queryOptions.add_argument('--query','-q',action='store',required=True,nargs=1,
+                        metavar='query',dest='query',
+                        help='input tabular text file containing query sequences') 
+    queryOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
+                        metavar='format',dest='format',default="tsv",
+                        choices=['tsv','csv'],
+                        help='data format (default: tsv)')
+    queryOptions.add_argument('--output','-o',action='store',required=False,nargs=1,
+                        metavar='output',dest='output',default="out.similarity.tsv",
+                        help='output percent similarity')
+    queryOptions.add_argument('--length','-l',action='store',required=False,nargs=1,
+                        metavar='length',dest='length',default=31,type=int,
+                        help='k-mer length for --mash/-m or --fastani/-n (default: 31)')
+    queryOptions.add_argument('--evalue','-e',action='store',required=False,nargs=1,
+                        metavar='evalue',dest='evalue',default=0.001,type=float,
+                        help='minimum evalue for hits; use with --blast (default: 0.001)')
+    queryOptions.add_argument('--complete','-c',action='store_true',default=False,
+                        dest='complete',help='comparing full sequences')
+    queryOptions.add_argument('--threads','-t',action='store',required=False,nargs=1,
+                        metavar='threads',dest='threads',default=5,type=int,
+                        help='number of threads (default: 5)')
 
     orderOptions = optionsCommand.add_parser("order")
 
@@ -1503,6 +1691,19 @@ def seqCompareMain():
                  }
         
         similarity(cmdValues)
+
+    if options.command == "query":
+        cmdValues = {'reference': options.reference[0:][0],
+                 'query': options.query[0:][0],
+                 'format': options.format[0:][0] if isinstance(options.format,list) else options.format,
+                 'output': options.output[0:][0] if isinstance(options.output,list) else options.output,
+                 'length': int(options.length[0:][0]) if isinstance(options.length,list) else int(options.length),
+                 'evalue': float(options.evalue[0:][0]) if isinstance(options.evalue,list) else float(options.evalue),
+                 'complete': options.complete,
+                 'threads': int(options.threads[0:][0]) if isinstance(options.threads,list) else int(options.threads)
+                 }
+
+        queryReferenceByBLAST(cmdValues)
 
     elif options.command == "filter":
         cmdValues = {'data': options.data[0:][0],

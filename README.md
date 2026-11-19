@@ -1,5 +1,5 @@
 # seqCompare
-A toolkit for sequence similarity analysis
+A toolkit for nucleotide sequence similarity analysis
 
 # Installation
 
@@ -15,5 +15,5 @@ conda install -c bioconda seqCompare --yes
 
 # Citation
 ```
-Chaguza et al. seqCompare: A toolkit for sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqCompare](https://github.com/ChrispinChaguza/seqCompare)
+Chaguza et al. seqCompare: A toolkit for nucleotide sequence similarity analysis. 2026. [https://github.com/ChrispinChaguza/seqCompare](https://github.com/ChrispinChaguza/seqCompare)
 ```

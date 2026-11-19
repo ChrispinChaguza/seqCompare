@@ -3,6 +3,7 @@ README.md
 pyproject.toml
 seqCompare/__init__.py
 seqCompare/__main__.py
+seqCompare/seqComparator.py
 seqCompare/seqCompare.py
 seqCompare.egg-info/PKG-INFO
 seqCompare.egg-info/SOURCES.txt

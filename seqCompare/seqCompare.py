@@ -439,7 +439,7 @@ def similarity(cmdValues):
     else:
         pass
 
-    if (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
+    if (cmdValues["matrix"]) and (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
         dataMatrixDF = loadDataTable(cmdValues)
 
         itemPairs = itertools.permutations([item for pos,item in enumerate(dataMatrixDF.keys()) if pos>0], r=2)
@@ -461,7 +461,7 @@ def similarity(cmdValues):
                 bar.next()
             bar.finish()
 
-    elif (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (cmdValues["mash"]) and (not cmdValues["fastani"]):
+    elif (not cmdValues["matrix"]) and  (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (cmdValues["mash"]) and (not cmdValues["fastani"]):
         similarityResults = mashSimilarity(cmdValues)
 
         with open(cmdValues["output"],"w") as simData:
@@ -474,7 +474,7 @@ def similarity(cmdValues):
                 bar.next()
             bar.finish()
 
-    elif (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (cmdValues["fastani"]):
+    elif (not cmdValues["matrix"]) and (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (cmdValues["fastani"]):
         similarityResults = fastaniSimilarity(cmdValues)
 
         with open(cmdValues["output"],"w") as simData:
@@ -487,7 +487,7 @@ def similarity(cmdValues):
                 bar.next()
             bar.finish()
 
-    elif (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
+    elif (not cmdValues["matrix"]) and (not cmdValues["blastani"]) and (not cmdValues["blast"]) and (cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
         alignment={}
 
         for i in SeqIO.parse(cmdValues['data'],"fasta"):
@@ -502,7 +502,7 @@ def similarity(cmdValues):
             args=[(alignment[m],alignment[n]) for m,n in tmpList]
             results=pool.starmap(alignmentSimilarity, args)
 
-    elif (not cmdValues["blastani"]) and (cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
+    elif (not cmdValues["matrix"]) and (not cmdValues["blastani"]) and (cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
         if not shutil.which("blastn"):
             print("Install BLAST and try again... exiting...")
             sys.exit()
@@ -628,7 +628,7 @@ def similarity(cmdValues):
             bar.finish()
 
 
-    elif (cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
+    elif (not cmdValues["matrix"]) and (cmdValues["blastani"]) and (not cmdValues["blast"]) and (not cmdValues["aln"]) and (not cmdValues["mash"]) and (not cmdValues["fastani"]):
         if not shutil.which("blastn"):
             print("Install BLAST and try again... exiting...")
             sys.exit()
@@ -1558,9 +1558,11 @@ def seqCompareMain():
                         dest='mash',help='calculate similarity using MASH')
     similarityOptions.add_argument('--fastani','-n',action='store_true',default=False,
                         dest='fastani',help='calculate similarity using fastANI')
-    similarityOptions.add_argument('--blast','-b',action='store_true',default=False,
+    similarityOptions.add_argument('--blast','-b',action='store_true',default=True,
                         dest='blast',help='calculate similarity using BLAST')
-    similarityOptions.add_argument('--blastani','-x',action='store_true',default=False,
+    similarityOptions.add_argument('--matrix','-x',action='store_true',default=False,
+                        dest='matrix',help='calculate similarity using a presence and absence matrix')
+    similarityOptions.add_argument('--blastani','-i',action='store_true',default=False,
                         dest='blastani',help='calculate blast ANI similarity')
     similarityOptions.add_argument('--aln','-a',action='store_true',default=False,
                         dest='aln',help='calculate similarity based on a given sequence alignment') 
@@ -1796,6 +1798,7 @@ def seqCompareMain():
                  'size': float(options.size[0:][0]) if isinstance(options.size,list) else float(options.size),
                  'mash': options.mash,
                  'fastani': options.fastani,
+                 'matrix': options.matrix,
                  'blast': options.blast,
                  'blastani': options.blastani,
                  'aln': options.aln,

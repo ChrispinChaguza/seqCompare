@@ -148,22 +148,21 @@ def queryReferenceByBLASTParallel(querySequence,blastDatabase,cmdValues):
 
     if os.path.exists(tmpOut):
         if os.path.getsize(tmpOut) > 0:
-            pass
+            blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int, 'bitscore': float},engine='python')
+            blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
+
+            blastData = blastData[["qseqid","sseqid","tmp","length","bitscore","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean','bitscore':'sum'}).reset_index()
+
+            blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
+
+            blastDataR = blastData[["qseqid","sseqid","tmp1","bitscore"]].sort_values(by=['bitscore','tmp1'],ascending=False).groupby(['sseqid']).first().reset_index()
+
+            blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()        
+
         else:
             sys.exit()
     else:
         sys.exit()
-
-    blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int, 'bitscore': float},engine='python')
-    blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
-
-    blastData = blastData[["qseqid","sseqid","tmp","length","bitscore","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean','bitscore':'sum'}).reset_index()
-
-    blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
-
-    blastDataR = blastData[["qseqid","sseqid","tmp1","bitscore"]].sort_values(by=['bitscore','tmp1'],ascending=False).groupby(['sseqid']).first().reset_index()
-
-    blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
 
     if os.path.exists(tmpOut):
         os.remove(tmpOut)
@@ -309,29 +308,28 @@ def blastANISimilarity(querySequence,blastDatabase,cmdValues):
 
     if os.path.exists(tmpOut):
         if os.path.getsize(tmpOut) > 0:
-            pass
+            blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int},engine='python')
+            blastData = blastData[blastData["qcovs"] >= (cmdValues["fraction"]*100)]
+
+            blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
+
+            blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
+            blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) if x["length"]>0 else 0 ),axis=1)
+
+            blastData["qseqidR"] = blastData.apply(lambda x: x["qseqid"] if x["qseqid"] > x["sseqid"] else x["sseqid"],axis=1)
+            blastData["sseqidR"] = blastData.apply(lambda x: x["sseqid"] if x["qseqid"] > x["sseqid"] else x["qseqid"],axis=1)
+
+            blastData["qseqid"] = blastData["qseqidR"]
+            blastData["sseqid"] = blastData["sseqidR"]
+
+            blastDataR = blastData[["qseqid","sseqid","tmp1"]].groupby(['qseqid','sseqid']).agg({'tmp1':'min'}).reset_index()
+
+            blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
+
         else:
             sys.exit()
     else:
         sys.exit()
-
-    blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int},engine='python')
-    blastData = blastData[blastData["qcovs"] >= (cmdValues["fraction"]*100)]
-
-    blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
-
-    blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
-    blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) if x["length"]>0 else 0 ),axis=1)
-
-    blastData["qseqidR"] = blastData.apply(lambda x: x["qseqid"] if x["qseqid"] > x["sseqid"] else x["sseqid"],axis=1)
-    blastData["sseqidR"] = blastData.apply(lambda x: x["sseqid"] if x["qseqid"] > x["sseqid"] else x["qseqid"],axis=1)
-
-    blastData["qseqid"] = blastData["qseqidR"]
-    blastData["sseqid"] = blastData["sseqidR"]
-
-    blastDataR = blastData[["qseqid","sseqid","tmp1"]].groupby(['qseqid','sseqid']).agg({'tmp1':'min'}).reset_index()
-
-    blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
 
     if os.path.exists(tmpOut):
         os.remove(tmpOut)
@@ -353,28 +351,27 @@ def blastSimilarity(querySequence,blastDatabase,cmdValues):
 
     if os.path.exists(tmpOut):
         if os.path.getsize(tmpOut) > 0:
-            pass
+            blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int},engine='python')
+            blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
+
+            blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
+
+            blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
+
+            blastData["qseqidR"] = blastData.apply(lambda x: x["qseqid"] if x["qseqid"] > x["sseqid"] else x["sseqid"],axis=1)
+            blastData["sseqidR"] = blastData.apply(lambda x: x["sseqid"] if x["qseqid"] > x["sseqid"] else x["qseqid"],axis=1)
+
+            blastData["qseqid"] = blastData["qseqidR"]
+            blastData["sseqid"] = blastData["sseqidR"]
+
+            blastDataR = blastData[["qseqid","sseqid","tmp1"]].groupby(['qseqid','sseqid']).agg({'tmp1':'min'}).reset_index()
+
+            blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
+
         else:
             sys.exit()
     else:
         sys.exit()
-
-    blastData = pd.read_csv(tmpOut,delimiter="\t",dtype={'pident': float,'qcovs': float, 'length': int},engine='python')
-    blastData["tmp"] = blastData.apply(lambda x: (x["length"] * x["pident"]),axis=1)
-
-    blastData = blastData[["qseqid","sseqid","tmp","length","qcovs"]].groupby(['qseqid','sseqid']).agg({'tmp':'sum','length':'sum','qcovs':'mean'}).reset_index()
-
-    blastData["tmp1"] = blastData.apply(lambda x: ((x["tmp"] / x["length"]) * (x["qcovs"] / 100)),axis=1)
-
-    blastData["qseqidR"] = blastData.apply(lambda x: x["qseqid"] if x["qseqid"] > x["sseqid"] else x["sseqid"],axis=1)
-    blastData["sseqidR"] = blastData.apply(lambda x: x["sseqid"] if x["qseqid"] > x["sseqid"] else x["qseqid"],axis=1)
-
-    blastData["qseqid"] = blastData["qseqidR"]
-    blastData["sseqid"] = blastData["sseqidR"]
-
-    blastDataR = blastData[["qseqid","sseqid","tmp1"]].groupby(['qseqid','sseqid']).agg({'tmp1':'min'}).reset_index()
-
-    blastDataFinal = blastDataR[["sseqid","qseqid","tmp1"]].rename(columns={"sseqid":"seq1","qseqid":"seq2","tmp1":"pid"}).values.tolist()
 
     if os.path.exists(tmpOut):
         os.remove(tmpOut)

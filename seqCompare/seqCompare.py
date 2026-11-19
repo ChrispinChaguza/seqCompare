@@ -608,13 +608,7 @@ def similarity(cmdValues):
         else:
             pass
 
-        similarityResults = []
-
-        bar = ChargingBar('Processing similarity values', max=len(results))
-        for i,resultRow in enumerate(results):
-            similarityResults.append(resultRow)
-            bar.next()
-        bar.finish()
+        similarityResults = results
 
         with open(cmdValues["output"],"w") as simData:
             simData.write("seq1\tseq2\tpid\n")
@@ -734,13 +728,7 @@ def similarity(cmdValues):
         else:
             pass
 
-        similarityResults = []
-
-        bar = ChargingBar('Processing similarity values', max=len(results))
-        for i,resultRow in enumerate(results):
-            similarityResults.append(resultRow)
-            bar.next()
-        bar.finish()
+        similarityResults = results
 
         with open(cmdValues["output"],"w") as simData:
             simData.write("seq1\tseq2\tpid\n")

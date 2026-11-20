@@ -1528,7 +1528,7 @@ def seqCompareMain():
 
     similarityOptions.add_argument('--data','-d',action='store',required=True,nargs=1,
                         metavar='data',dest='data',
-                        help='input tabular text file (input should be file of fasta files when used with --mash/-m and --fastani/-n options or alignment file when used with --aln/-a option)')
+                        help='input text file (list of fasta files, alignment, or presence/absence table)')
     similarityOptions.add_argument('--format','-f',action='store',required=False,nargs=1,
                         metavar='format',dest='format',default="tsv",
                         choices=['tsv','csv'],
